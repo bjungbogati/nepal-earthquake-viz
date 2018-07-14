@@ -15,5 +15,13 @@ We use data set from [Open Data Nepal](http://data.opennepal.net/content/causali
 In this visualization project, we explore the data based on injuries and death.
 
 
+<img src="earthquake_nepal.jpeg" alt="earthquake nepal 2015" width="450px"/>
 
-## Total Deaths 
+
+## Total Deaths by Gender
+
+![](./nepal_earthquake_casulties_files/figure-html/unnamed-chunk-11-1.png)
+
+## Total Deaths in Bagmati Zone
+
+![](./nepal_earthquake_casulties_files/figure-html/unnamed-chunk-20-1.png)

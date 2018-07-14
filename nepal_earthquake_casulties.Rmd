@@ -12,7 +12,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# set working directory
+This is a visualization project in R programming. Here, we use earthquake causalities data set. 
+
+
+# First, set working directory
 
 ```{r}
 path <- setwd("/home/bjungbogati/Desktop/DataSansar/Projects/earthquake_visualization")
@@ -137,8 +140,6 @@ male_death <- earthquake_df %>%
 
 male_death
 
-# total male death
-sum(male_death$numbers)
 ```
 
 
@@ -202,20 +203,23 @@ zone_narayani <- central_injured %>%
 # bagmati zone
 ggplot(zone_bagmati, aes(x = district, y = numbers)) +
   geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
-  labs(title="Total injured in Bagmati Zone", y="Numbers of Injured", x="Districts") +
+  labs(title="Total injured in Bagmati Zone", y="Numbers of Injured", x="Districts", caption= paste("Total injured people:", sum(zone_bagmati$numbers))) +
+  geom_text(aes(label = numbers),position = position_stack(vjust = 0.5), size = 3) +
   theme(plot.title = element_text(hjust = 0.5))
 
 # janakpur zone
 ggplot(zone_janakpur, aes(x = district, y = numbers)) +
   geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
-  labs(title="Total injured in Janakpur Zone", y="Numbers of Injured", x="Districts") +
+  labs(title="Total injured in Janakpur Zone", y="Numbers of Injured", x="Districts", caption= paste("Total injured people:", sum(zone_janakpur$numbers))) +
+  geom_text(aes(label = numbers),position = position_stack(vjust = 0.5), size = 3) +
   theme(plot.title = element_text(hjust = 0.5))
 
 
 # narayani zone
 ggplot(zone_narayani, aes(x = district, y = numbers)) +
   geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
-  labs(title="Total injured in Narayani Zone", y="Numbers of Injured", x="Districts") +
+  labs(title="Total injured in Narayani Zone", y="Numbers of Injured", x="Districts", caption= paste("Total injured people:", sum(zone_narayani$numbers))) +
+  geom_text(aes(label = numbers),position = position_stack(vjust = 0.5), size = 3) +
   theme(plot.title = element_text(hjust = 0.5))
 
 ```

@@ -10,7 +10,10 @@ output:
 
 
 
-# set working directory
+This is a visualization project in R programming. Here, we use earthquake causalities data set. 
+
+
+# First, set working directory
 
 
 ```r
@@ -119,60 +122,6 @@ summary(earthquake_df)
 ##                                        3rd Qu.:   3287  
 ##                                        Max.   :1744240
 ```
-# Unique rows 
-
-
-```r
-# districts coverage
-unique(earthquake_df$district)
-```
-
-```
-##  [1] "Sindhupalchok" "Kathmandu"     "Nuwakot"       "Dhading"      
-##  [5] "Rasuwa"        "Gorkha"        "Bhaktapur"     "Kavre"        
-##  [9] "Lalitpur"      "Dolakha"       "Ramechhap"     "Makwanpur"    
-## [13] "Solukhumbu"    "Okhaldhunga"   "Sindhuli"      "Chitawan"     
-## [17] "Sunsari"       "Parsa"         "Bara"          "Lamjung"      
-## [21] "Mahottari"     "Rautahat"      "Kaski"         "Morang"       
-## [25] "Bhojpur"       "Sarlahi"       "Taplejung"     "Jhapa"        
-## [29] "Terhathum"     "Udayapur"      "Siraha"        "Dhanusa"      
-## [33] "Nawalparasi"   "Palpa"         "Gulmi"         "Baglung"      
-## [37] "Rolpa"         "Rukum"         "Panchthar"     "Ilam"         
-## [41] "Dhankuta"      "Sankhuwasabha" "Khotang"       "Saptari"      
-## [45] "Rupandehi"     "Kapilbastu"    "Arghakhanchi"  "Syangja"      
-## [49] "Tanahu"        "Manang"        "Mustang"       "Myagdi"       
-## [53] "Parbat"        "Dang"          "Pyuthan"       "Salyan"       
-## [57] "Dolpa"         "Mugu"          "Humla"         "Jumla"        
-## [61] "Kalikot"       "Jajarkot"      "Dailekh"       "Surkhet"      
-## [65] "Bardiya"       "Banke"         "Kailali"       "Doti"         
-## [69] "Achham"        "Bajura"        "Bajhang"       "Darchaula"    
-## [73] "Baitadi"       "Dadeldhura"    "Kanchanpur"
-```
-
-
-```r
-# development region
-unique(earthquake_df$dev_region)
-```
-
-```
-## [1] "Central"     "Western"     "Eastern"     "Mid-Western" "Far-Western"
-```
-
-
-```r
-# causalties label
-unique(earthquake_df$causalties)
-```
-
-```
-##  [1] "Total No. of Houses"              "Total Population"                
-##  [3] "Dead Male"                        "Dead Female"                     
-##  [5] "Dead Unknown"                     "Injured"                         
-##  [7] "Govt. Houses Fully Destroyed"     "Govt. Houses Partially Destroyed"
-##  [9] "Public House Fully Destroyed"     "Public House Partially Destroyed"
-```
-
 
 # Get the injured persons
 
@@ -253,7 +202,55 @@ ggplot(zone, aes(x = district, y = numbers)) +
   geom_bar(stat = "identity", aes(fill = district),position = "dodge")
 ```
 
-![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+
+
+# Finding total deaths
+
+
+```r
+# find the total number of deaths based on gender
+female_num <- earthquake_df %>% 
+  select(causalties, numbers) %>% 
+  filter(causalties == "Dead Female") %>% 
+  summarise(gender = "female", deaths = sum(numbers))
+
+male_num <- male_death <- earthquake_df %>% 
+  select(causalties, numbers) %>% 
+  filter(causalties == "Dead Male") %>% 
+  summarise(gender = "male", deaths = sum(numbers))
+
+# combine the rows of dataframe : male_sum and female_sum
+total_death <- bind_rows(female_num, male_num)
+
+total_death <- total_death %>% mutate(percent = round(deaths/sum(deaths) * 100))
+total_death
+```
+
+```
+## # A tibble: 2 x 3
+##   gender deaths percent
+##   <chr>   <int>   <dbl>
+## 1 female   4801     55.
+## 2 male     3896     45.
+```
+
+```r
+# total death
+t <- sum(total_death$deaths)
+
+# rbind(c("Total", sum(total_death$deaths)))
+
+# visualize the plot
+ggplot(total_death, aes(x = "", y = deaths, fill = gender)) +
+  geom_bar(stat = "identity", width = 0.3) +
+  coord_polar("y", start=0) +
+  labs(title="Percentage of Death by Gender", caption= "Female : 55 % \n Male : 45 %") +
+  geom_text(aes(label = deaths),position = position_stack(vjust = 0.5), size = 3) 
+```
+
+![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
 
 # Death by Gender
 
@@ -261,7 +258,6 @@ ggplot(zone, aes(x = district, y = numbers)) +
 ```r
 female_death <- earthquake_df %>% 
   filter(causalties == "Dead Female")
-
 female_death
 ```
 
@@ -307,6 +303,7 @@ male_death
 ## # ... with 65 more rows
 ```
 
+
 # Visualize
 
 
@@ -317,7 +314,7 @@ ggplot(female_death, aes(x = dev_region, y = numbers)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
 ```r
 ggplot(male_death, aes(x = dev_region, y = numbers)) +
@@ -326,7 +323,9 @@ ggplot(male_death, aes(x = dev_region, y = numbers)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-16-2.png)<!-- -->
+![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-14-2.png)<!-- -->
+
+
 
 
 # Filter by Development Region
@@ -420,29 +419,32 @@ zone_narayani <- central_injured %>%
 # bagmati zone
 ggplot(zone_bagmati, aes(x = district, y = numbers)) +
   geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
-  labs(title="Total injured in Bagmati Zone", y="Numbers of Injured", x="Districts") +
+  labs(title="Total injured in Bagmati Zone", y="Numbers of Injured", x="Districts", caption= paste("Total injured people:", sum(zone_bagmati$numbers))) +
+  geom_text(aes(label = numbers),position = position_stack(vjust = 0.5), size = 3) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 ```r
 # janakpur zone
 ggplot(zone_janakpur, aes(x = district, y = numbers)) +
   geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
-  labs(title="Total injured in Janakpur Zone", y="Numbers of Injured", x="Districts") +
+  labs(title="Total injured in Janakpur Zone", y="Numbers of Injured", x="Districts", caption= paste("Total injured people:", sum(zone_janakpur$numbers))) +
+  geom_text(aes(label = numbers),position = position_stack(vjust = 0.5), size = 3) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-21-2.png)<!-- -->
+![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-20-2.png)<!-- -->
 
 ```r
 # narayani zone
 ggplot(zone_narayani, aes(x = district, y = numbers)) +
   geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
-  labs(title="Total injured in Narayani Zone", y="Numbers of Injured", x="Districts") +
+  labs(title="Total injured in Narayani Zone", y="Numbers of Injured", x="Districts", caption= paste("Total injured people:", sum(zone_narayani$numbers))) +
+  geom_text(aes(label = numbers),position = position_stack(vjust = 0.5), size = 3) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-21-3.png)<!-- -->
+![](nepal_earthquake_casulties_files/figure-html/unnamed-chunk-20-3.png)<!-- -->
 
