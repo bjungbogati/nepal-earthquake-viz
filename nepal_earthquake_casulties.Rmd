@@ -56,23 +56,6 @@ head(earthquake_df)
 ```{r}
 summary(earthquake_df)
 ```
-# Unique rows 
-
-```{r}
-# districts coverage
-unique(earthquake_df$district)
-```
-
-```{r}
-# development region
-unique(earthquake_df$dev_region)
-```
-
-```{r}
-# causalties label
-unique(earthquake_df$causalties)
-```
-
 
 # Get the injured persons
 ```{r}
@@ -103,13 +86,49 @@ ggplot(zone, aes(x = district, y = numbers)) +
 
 ```
 
+
+# Finding total deaths
+
+```{r}
+# find the total number of deaths based on gender
+female_num <- earthquake_df %>% 
+  select(causalties, numbers) %>% 
+  filter(causalties == "Dead Female") %>% 
+  summarise(gender = "female", deaths = sum(numbers))
+
+male_num <- male_death <- earthquake_df %>% 
+  select(causalties, numbers) %>% 
+  filter(causalties == "Dead Male") %>% 
+  summarise(gender = "male", deaths = sum(numbers))
+
+# combine the rows of dataframe : male_sum and female_sum
+total_death <- bind_rows(female_num, male_num)
+
+total_death <- total_death %>% mutate(percent = round(deaths/sum(deaths) * 100))
+total_death
+
+# total death
+t <- sum(total_death$deaths)
+
+# rbind(c("Total", sum(total_death$deaths)))
+
+# visualize the plot
+ggplot(total_death, aes(x = "", y = deaths, fill = gender)) +
+  geom_bar(stat = "identity", width = 0.3) +
+  coord_polar("y", start=0) +
+  labs(title="Percentage of Death by Gender", caption= "Female : 55 % \n Male : 45 %") +
+  geom_text(aes(label = deaths),position = position_stack(vjust = 0.5), size = 3) 
+
+```
+
+
 # Death by Gender
 
 ```{r}
 female_death <- earthquake_df %>% 
   filter(causalties == "Dead Female")
-
 female_death
+
 ```
 
 ```{r}
@@ -117,7 +136,11 @@ male_death <- earthquake_df %>%
   filter(causalties == "Dead Male")
 
 male_death
+
+# total male death
+sum(male_death$numbers)
 ```
+
 
 # Visualize
 
@@ -131,6 +154,10 @@ ggplot(male_death, aes(x = dev_region, y = numbers)) +
   geom_bar(stat = "identity", aes(fill = zone), position = "dodge") +
   labs(title="No of. Male death by zone", y="Numbers of Injured", x="Districts") +
   theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+
 ```
 
 
