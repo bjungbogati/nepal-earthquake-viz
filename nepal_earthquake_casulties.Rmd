@@ -1,0 +1,195 @@
+---
+title: "Nepal Earthquake 2015 Causalities"
+author: "Binod Jung Bogati"
+date: "7/13/2018"
+output: 
+  html_document:
+    keep_md: yes
+    theme: readable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# set working directory
+
+```{r}
+path <- setwd("/home/bjungbogati/Desktop/DataSansar/Projects/earthquake_visualization")
+```
+
+# Download data
+
+```{r}
+url <- "https://raw.githubusercontent.com/opennepal/odp-disaster/master/Causalities%20caused%20by%20earthquake%2C2015/data.csv"
+
+download.file(url, destfile = "./data/earthquake_nepal.csv")
+```
+
+
+# Read the data
+
+```{r}
+library(readr)
+earthquake_df <- read_csv("./data/earthquake_nepal.csv")
+```
+
+# Look into top 6 rows
+```{r}
+head(earthquake_df)
+```
+# Names of Columns
+
+```{r}
+names(earthquake_df)
+```
+
+# Renaming columns
+
+```{r}
+names(earthquake_df) <- c("district", "zone", "geo_region", "dev_region", "causalties", "numbers")
+head(earthquake_df)
+```
+
+# Summary statistics
+
+```{r}
+summary(earthquake_df)
+```
+# Unique rows 
+
+```{r}
+# districts coverage
+unique(earthquake_df$district)
+```
+
+```{r}
+# development region
+unique(earthquake_df$dev_region)
+```
+
+```{r}
+# causalties label
+unique(earthquake_df$causalties)
+```
+
+
+# Get the injured persons
+```{r}
+# load the dplyr package
+library(dplyr)
+
+injured <- earthquake_df %>% 
+  filter(causalties == "Injured")
+
+head(injured)
+```
+
+# No. of person injured in Bagmati
+
+```{r}
+zone <- earthquake_df %>%
+  filter(zone == "Bagmati")
+zone
+```
+
+# Visualize data
+
+```{r}
+library(ggplot2)
+
+ggplot(zone, aes(x = district, y = numbers)) +
+  geom_bar(stat = "identity", aes(fill = district),position = "dodge")
+
+```
+
+# Death by Gender
+
+```{r}
+female_death <- earthquake_df %>% 
+  filter(causalties == "Dead Female")
+
+female_death
+```
+
+```{r}
+male_death <- earthquake_df %>% 
+  filter(causalties == "Dead Male")
+
+male_death
+```
+
+# Visualize
+
+```{r}
+ggplot(female_death, aes(x = dev_region, y = numbers)) +
+  geom_bar(stat = "identity", aes(fill = zone), position = "dodge") +
+  labs(title="No. of Female death by zone", y="Numbers of Injured", x="Districts") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(male_death, aes(x = dev_region, y = numbers)) +
+  geom_bar(stat = "identity", aes(fill = zone), position = "dodge") +
+  labs(title="No of. Male death by zone", y="Numbers of Injured", x="Districts") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+# Filter by Development Region
+
+```{r}
+central_region <- earthquake_df %>% 
+  filter(dev_region == "Central")
+
+central_region
+```
+
+# Filter by Injured
+```{r}
+central_injured <- central_region %>% 
+    filter(causalties == "Injured")
+
+central_injured
+
+```
+
+```{r}
+unique(central_injured$zone)
+```
+
+# Injured - Bagmati Zone - Central Region 
+
+```{r}
+zone_bagmati <- central_injured %>% 
+  filter(zone == "Bagmati")
+
+zone_janakpur <- central_injured %>% 
+  filter(zone == "Janakpur")
+
+zone_narayani <- central_injured %>% 
+  filter(zone == "Narayani")
+```
+
+# Visualizing the injured people of Central zone
+
+```{r}
+# bagmati zone
+ggplot(zone_bagmati, aes(x = district, y = numbers)) +
+  geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
+  labs(title="Total injured in Bagmati Zone", y="Numbers of Injured", x="Districts") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# janakpur zone
+ggplot(zone_janakpur, aes(x = district, y = numbers)) +
+  geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
+  labs(title="Total injured in Janakpur Zone", y="Numbers of Injured", x="Districts") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+# narayani zone
+ggplot(zone_narayani, aes(x = district, y = numbers)) +
+  geom_bar(stat = "identity", aes(fill = district), position = "dodge") +
+  labs(title="Total injured in Narayani Zone", y="Numbers of Injured", x="Districts") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
